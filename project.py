@@ -1,8 +1,9 @@
 """
-Week 4 practice project template for Python Data Representation
-Update syntax for print in CodeSkulptor Docs
+Week 4 practice project for Python Data Representation
+Update syntax for print in a HTML file
 from "print ..." syntax in Python 2 to "print(...)" syntax for Python 3
 """
+# In HTML, "print ..." syntax is written as <pre class='cm'>print 12</pre></td><td><pre>12</pre> for Python 2 in HTML files
 
 # HTML tags that bounds example code
 PREFIX = "<pre class='cm'>"
@@ -16,25 +17,17 @@ def update_line(line):
     and returns a string with print updated
     """
 
-    # Strip left white space using built-in string method lstrip()
+# Strip left white space using built-in string method lstrip()
+    stripped_line = line.lstrip()
 
     # If line is print statement,  use the format() method to add insert parentheses
-
-    # Note that solution does not handle white space/comments after print statememt
-
-    return ""
-
-# Some simple tests
-print(update_line(""))
-print(update_line("foobar()"))  
-print(update_line("print 1 + 1"))      
-print(update_line("    print 2, 3, 4"))
-
-# Expect output
-##
-##foobar()
-##print(1 + 1)
-##    print(2, 3, 4)
+    if stripped_line[0:5] == "print":
+        contents = stripped_line[6:]
+        spaces = " " * (len(line) - len(stripped_line))
+        new_line = "{0}print({1})".format(spaces, contents)
+        return new_line
+    else:
+        return line
 
 
 def update_pre_block(pre_block):
