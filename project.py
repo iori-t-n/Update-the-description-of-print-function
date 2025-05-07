@@ -14,10 +14,13 @@ PRINT = "print"
 def update_line(line):
     """
     Takes a string line representing a single line of code
-    and returns a string with print updated
+    and returns a string with print updated:
+    i.e. 
+    "print 1 + 1" ->  "print(1 + 1)"
+    "    print 2, 3, 4" -> "    print(2, 3, 4)"
     """
 
-# Strip left white space using built-in string method lstrip()
+    # Strip left white space using built-in string method lstrip()
     stripped_line = line.lstrip()
 
     # If line is print statement,  use the format() method to add insert parentheses
@@ -29,6 +32,18 @@ def update_line(line):
     else:
         return line
 
+# # Some simple tests
+# print(update_line(""))
+# print(update_line("foobar()"))  
+# print(update_line("print 1 + 1"))      
+# print(update_line("    print 2, 3, 4"))
+
+# Expect output
+##
+##foobar()
+##print(1 + 1)
+##    print(2, 3, 4)
+
 
 def update_pre_block(pre_block):
     """
@@ -36,17 +51,24 @@ def update_pre_block(pre_block):
     Returns string corresponding to updated <pre> block with each line
     updated via process_line()
     """
-    
-    updated_block = ""
+    block_list = pre_block.split("\n")
+    # print(block_list)
+    updated_list = []
 
+    for item in block_list:
+        new_item = update_line(item)
+        # print(new_item)
+        updated_list.append(new_item)
+    
+    updated_block = "\n".join(updated_list)
     return updated_block
 
-# Some simple tests
-print(update_pre_block(""))
-print(update_pre_block("foobar()"))
-print(update_pre_block("if foo():\n    bar()"))
-print(update_pre_block("print\nprint 1+1\nprint 2, 3, 4"))
-print(update_pre_block("    print a + b\n    print 23 * 34\n        print 1234"))
+# # Some simple tests
+# print(update_pre_block(""))
+# print(update_pre_block("foobar()"))
+# print(update_pre_block("if foo():\n    bar()"))
+# print(update_pre_block("print\nprint 1+1\nprint 2, 3, 4"))
+# print(update_pre_block("    print a + b\n    print 23 * 34\n        print 1234"))
 
 # Expected output
 ##
