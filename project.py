@@ -14,10 +14,7 @@ PRINT = "print"
 def update_line(line):
     """
     Takes a string line representing a single line of code
-    and returns a string with print updated:
-    i.e. 
-    "print 1 + 1" ->  "print(1 + 1)"
-    "    print 2, 3, 4" -> "    print(2, 3, 4)"
+    and returns a string with print updated
     """
 
     # Strip left white space using built-in string method lstrip()
@@ -25,9 +22,11 @@ def update_line(line):
 
     # If line is print statement,  use the format() method to add insert parentheses
     if stripped_line[0:5] == "print":
-        contents = stripped_line[6:]
+        pre_index = stripped_line.index(POSTFIX)
+        contents = stripped_line[6 : pre_index]
+        rest_line = stripped_line[pre_index :]
         spaces = " " * (len(line) - len(stripped_line))
-        new_line = "{0}print({1})".format(spaces, contents)
+        new_line = "{0}print({1}){2}".format(spaces, contents, rest_line)
         return new_line
     else:
         return line
@@ -35,14 +34,14 @@ def update_line(line):
 # # Some simple tests
 # print(update_line(""))
 # print(update_line("foobar()"))  
-# print(update_line("print 1 + 1"))      
-# print(update_line("    print 2, 3, 4"))
+# print(update_line("print 1 + 1</pre></td><td>"))      
+# print(update_line("    print 2, 3, 4</pre></td><td>"))
 
-# Expect output
+# Expected output
 ##
 ##foobar()
-##print(1 + 1)
-##    print(2, 3, 4)
+##print(1 + 1)</pre></td><td>
+##    print(2, 3, 4)</pre></td><td>
 
 
 def update_pre_block(pre_block):
@@ -51,7 +50,7 @@ def update_pre_block(pre_block):
     Returns string corresponding to updated <pre> block with each line
     updated via process_line()
     """
-    block_list = pre_block.split("\n")
+    block_list = pre_block.split(PREFIX)
     # print(block_list)
     updated_list = []
 
@@ -60,37 +59,32 @@ def update_pre_block(pre_block):
         # print(new_item)
         updated_list.append(new_item)
     
-    updated_block = "\n".join(updated_list)
+    updated_block = PREFIX.join(updated_list)
     return updated_block
 
 # # Some simple tests
 # print(update_pre_block(""))
 # print(update_pre_block("foobar()"))
-# print(update_pre_block("if foo():\n    bar()"))
-# print(update_pre_block("print\nprint 1+1\nprint 2, 3, 4"))
-# print(update_pre_block("    print a + b\n    print 23 * 34\n        print 1234"))
+# print(update_pre_block("if foo():<pre class='cm'>    bar()"))
+# print(update_pre_block("<pre class='cm'>print</pre></td><td><pre class='cm'>print 1+1</pre></td><td><pre class='cm'>print 2, 3, 4</pre></td><td>"))
+# print(update_pre_block("<pre class='cm'>    print a + b</pre></td><td><pre class='cm'>    print 23 * 34</pre></td><td><pre class='cm'>        print 1234</pre></td><td>"))
 
 # Expected output
 ##
 ##foobar()
-##if foo():
-##    bar()
-##print()
-##print(1+1)
-##print(2, 3, 4)
-##    print(a + b)
-##    print(23 * 34)
-##        print(1234)
+##if foo():<pre class='cm'>    bar()
+##<pre class='cm'>print()</pre></td><td><pre class='cm'>print(1+1)</pre></td><td><pre class='cm'>print(2, 3, 4)</pre></td><td>
+##<pre class='cm'>    print(a + b)</pre></td><td><pre class='cm'>    print(23 * 34)</pre></td><td><pre class='cm'>        print(1234)</pre></td><td>
 
 def update_file(input_file_name, output_file_name):
     """
     Open and read the file specified by the string input_file_name
-    Proces the <pre> blocks in the loaded text to update print syntax)
+    Process the <pre> blocks in the loaded text to update print syntax
     Write the update text to the file specified by the string output_file_name
     """
     
     # open file and read text in file as a string
-    pass
+    # openfile = open(input_file_name, "rt")
 
     # split text in <pre> blocks and update using update_pre_block()
 
@@ -98,8 +92,8 @@ def update_file(input_file_name, output_file_name):
     
 
 # A couple of test files
-update_file("table.html", "table_updated.html")
-update_file("docs.html", "docs_updated.html")
+# update_file("table.html", "table_updated.html")
+# update_file("docs.html", "docs_updated.html")
 
 # Import some code to check whether the computed files are correct
 ##import examples3_file_diff as file_diff
