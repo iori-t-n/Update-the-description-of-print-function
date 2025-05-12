@@ -21,60 +21,60 @@ def update_line(line):
     stripped_line = line.lstrip()
 
     # If line is print statement,  use the format() method to add insert parentheses
-    if stripped_line[0:5] == "print":
-        pre_index = stripped_line.index(POSTFIX)
-        contents = stripped_line[6 : pre_index]
-        rest_line = stripped_line[pre_index :]
-        spaces = " " * (len(line) - len(stripped_line))
-        new_line = "{0}print({1}){2}".format(spaces, contents, rest_line)
-        return new_line
-    else:
-        return line
+    if stripped_line[: len(PRINT)] == "print":
+        contents = stripped_line[len(PRINT) + 1 :]
+        spaces = " " * line.find(PRINT)
+        return "{}print({})".format(spaces, contents)
+    return line
 
 # # Some simple tests
 # print(update_line(""))
 # print(update_line("foobar()"))  
-# print(update_line("print 1 + 1</pre></td><td>"))      
-# print(update_line("    print 2, 3, 4</pre></td><td>"))
+# print(update_line("print 1 + 1"))      
+# print(update_line("    print 2, 3, 4"))
 
-# Expected output
+# Expect output
 ##
 ##foobar()
-##print(1 + 1)</pre></td><td>
-##    print(2, 3, 4)</pre></td><td>
+##print(1 + 1)
+##    print(2, 3, 4)
 
 
 def update_pre_block(pre_block):
     """
     Take a string that correspond to a <pre> block in html and parses it into lines.  
     Returns string corresponding to updated <pre> block with each line
-    updated via process_line()
+    updated via update_line()
     """
-    block_list = pre_block.split(PREFIX)
+    block_list = pre_block.split("\n")
     # print(block_list)
-    updated_list = []
+    updated_block = update_line(block_list[0])
 
-    for item in block_list:
-        new_item = update_line(item)
-        # print(new_item)
-        updated_list.append(new_item)
-    
-    updated_block = PREFIX.join(updated_list)
+    for item in block_list[1 :]:
+        updated_block += "\n"
+        updated_block += update_line(item)
+           
     return updated_block
 
 # # Some simple tests
 # print(update_pre_block(""))
 # print(update_pre_block("foobar()"))
-# print(update_pre_block("if foo():<pre class='cm'>    bar()"))
-# print(update_pre_block("<pre class='cm'>print</pre></td><td><pre class='cm'>print 1+1</pre></td><td><pre class='cm'>print 2, 3, 4</pre></td><td>"))
-# print(update_pre_block("<pre class='cm'>    print a + b</pre></td><td><pre class='cm'>    print 23 * 34</pre></td><td><pre class='cm'>        print 1234</pre></td><td>"))
+# print(update_pre_block("if foo():\n    bar()"))
+# print(update_pre_block("print\nprint 1+1\nprint 2, 3, 4"))
+# print(update_pre_block("    print a + b\n    print 23 * 34\n        print 1234"))
 
 # Expected output
 ##
 ##foobar()
-##if foo():<pre class='cm'>    bar()
-##<pre class='cm'>print()</pre></td><td><pre class='cm'>print(1+1)</pre></td><td><pre class='cm'>print(2, 3, 4)</pre></td><td>
-##<pre class='cm'>    print(a + b)</pre></td><td><pre class='cm'>    print(23 * 34)</pre></td><td><pre class='cm'>        print(1234)</pre></td><td>
+##if foo():
+##    bar()
+##print()
+##print(1+1)
+##print(2, 3, 4)
+##    print(a + b)
+##    print(23 * 34)
+##        print(1234)
+
 
 def update_file(input_file_name, output_file_name):
     """
@@ -84,22 +84,37 @@ def update_file(input_file_name, output_file_name):
     """
     
     # open file and read text in file as a string
-    # openfile = open(input_file_name, "rt")
+    input_file= open(input_file_name, "rt")
+    input_data = input_file.read()
 
     # split text in <pre> blocks and update using update_pre_block()
+    split_data = input_data.split(PREFIX)
+    updated_data = split_data[0]
+
+    for item in split_data[1 :]:
+        updated_data += PREFIX
+        [pre_block, filler] = item.split(POSTFIX, 1)
+        updated_data += update_pre_block(pre_block)
+        updated_data += POSTFIX
+        updated_data += filler
 
     # Write the answer in the specified output file
+    output_file = open(output_file_name, "wt")
+    output_file.write(updated_data)
     
+    input_file.close()
+    output_file.close()
+
 
 # A couple of test files
-# update_file("table.html", "table_updated.html")
-# update_file("docs.html", "docs_updated.html")
+update_file("table.html", "table_updated.html")
+update_file("docs.html", "docs_updated.html")
 
 # Import some code to check whether the computed files are correct
-##import examples3_file_diff as file_diff
-##file_diff.compare_files("table_updated.html", "table_updated_solution.html")
-##file_diff.compare_files("docs_updated.html", "docs_updated_solution.html")
+import examples3_file_diff as file_diff
+file_diff.compare_files("table_updated.html", "table_updated_solution.html")
+file_diff.compare_files("docs_updated.html", "docs_updated_solution.html")
 
-# Expected output
-##table_updated.html and table_updated_solution.html are the same
-##docs_updated.html and docs_updated_solution.html are the same
+# # Expected output
+# ##table_updated.html and table_updated_solution.html are the same
+# ##docs_updated.html and docs_updated_solution.html are the samed
